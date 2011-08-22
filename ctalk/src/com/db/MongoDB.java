@@ -1,9 +1,10 @@
 package com.db;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.User;
 import com.mongodb.BasicDBObject;
@@ -15,6 +16,7 @@ import com.mongodb.Mongo;
 import com.mongodb.ServerAddress;
 
 public class MongoDB {
+	private static final Log log = LogFactory.getLog(MongoDB.class);
 	private String ip;
 	private int port;
 	private static DB db = null;
@@ -32,10 +34,15 @@ public class MongoDB {
 		try{
 			if (db == null){
 				Mongo mongo = null;
+				log.info("try connect to db: "+this.ip+" ["+this.port+"]");
 				mongo  = new Mongo( new ServerAddress( this.ip, this.port) );
 				db = mongo.getDB("ctalk");
+				if (!!!db.isAuthenticated()){
+					log.info("connect db success...");
+				}
 			}
 		}catch(Exception e){
+			log.error("connect db faild!!!!!");
 			e.printStackTrace();
 			db = null;
 			return;
@@ -88,31 +95,6 @@ public class MongoDB {
 		return mogdb;
 	}
 	
-	public static void main(String args[]){
-		User user = new User();
-		user.setIp("192.168.1.1");
-		user.setName("zhangsan");
-//		
-//		User user1 = new User();
-//		user1.setIp("192.168.203.1");
-//		user1.setName("lisi");		
-//		db.save(user);
-//		db.save(user);
-//		List list = db.findAll(user);
-//		for (int i=0;i<list.size();i++){
-//			User useer = (User)list.get(i);
-//			System.out.println(i+": "+ useer.getIp()+": "+useer.getName());
-//		}
-		
-		Object bson = MongoDB.getInstance().findOne(user);
-		if (bson != null){
-			User userrr =(User)bson;
-		}else{
-			;
-			;
-		}
-		
-	}
 }
 	
 
