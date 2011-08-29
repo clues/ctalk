@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.User;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -20,8 +19,8 @@ public class MongoDB {
 	private String ip;
 	private int port;
 	private static DB db = null;
-	private static MongoDB mogdb = null;;
-	private MongoDB(){
+	private static MongoDB mogdb = null;
+	public MongoDB(){
 		this.ip = "localhost";
 		this.port = 27017;
 	}
@@ -37,8 +36,11 @@ public class MongoDB {
 				log.info("try connect to db: "+this.ip+" ["+this.port+"]");
 				mongo  = new Mongo( new ServerAddress( this.ip, this.port) );
 				db = mongo.getDB("ctalk");
-				if (!!!db.isAuthenticated()){
+				boolean  pass = db.authenticate("chao", "chao".toCharArray());
+				if (pass){
 					log.info("connect db success...");
+				}else{
+					log.error("auth failed !!!");
 				}
 			}
 		}catch(Exception e){
