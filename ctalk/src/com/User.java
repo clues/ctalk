@@ -15,8 +15,10 @@ public class User implements IBsonObject{
 	private int port =0;
 	private String name;
 	private String password;
-	private int state = -1; //-1#off  0#on
+	private int state = 0; //-1#off  0#on
 	private Socket sock;
+	
+	private String receiver;
 
 
 	public static Map<String,User> onlinerMap = new HashMap<String,User>();
@@ -68,6 +70,11 @@ public class User implements IBsonObject{
 	
 	public static User get(String name){
 		return onlinerMap.get(name);
+	}
+	
+	public static void updateUserInOnlinerMap(User user){
+		onlinerMap.remove(user.getName());
+		onlinerMap.put(user.getName(), user);
 	}
 	
 	public static User removeUserBySocket(Socket sock){
@@ -131,6 +138,12 @@ public class User implements IBsonObject{
 			}
 		}
 		return user;
+	}
+	public String getReceiver() {
+		return receiver;
+	}
+	public void setReceiver(String receiver) {
+		this.receiver = receiver;
 	}
 	
 }
