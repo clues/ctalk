@@ -31,7 +31,7 @@ public class CTalk {
 		log.debug("try listen on port: "+ this.port);
 		ServerSocket server = null;
 		try{
-			new MongoDB("192.168.203.118",27017).connect();
+			new MongoDB().connect();
 			server = new ServerSocket(this.port);
 			log.info("listen on port: "+this.port);
 			while(true){
@@ -100,15 +100,70 @@ class UserThread implements Runnable{
 				msg.setUsername(user.getName());
 				msg.setMsg(line.getMsg());
 				MongoDB.getInstance().save(msg);
-				GroupHander.flush2group("\r\n["+user.getName()+"] "+time+":  " +line.getMsg());
-				return;
+
+				if (user.getReceiver() != null){
+					boolean ok = GroupHander.flush2One(user.getReceiver(),"\r\n["+user.getName()+"] "+time+":  " +line.getMsg());
+					if (!ok){
+						line.setMsg("send failed,may be" +user.getReceiver() +" off or socket exception!!!");
+					}else{
+						return;
+					}
+				}else{
+					GroupHander.flush2group("\r\n["+user.getName()+"] "+time+":  " +line.getMsg());
+					return;
+				}
+				
 			}
 		}else if (line.getCmd().equals(line.HELP_CMD)){
 			line.setMsg(line.helpInfo);
+		}else if (line.getCmd().equals(line.TALK_CMD)){
+			User user = User.getUserBySocket(sock);
+			if (user != null){
+				if (line.getMsg() == null){
+					user.setReceiver(null);
+				}else {
+					if (User.onlinerMap.get(line.getMsg()) != null){
+						user.setReceiver(line.getMsg());
+					}else{
+						line.setMsg(line.getMsg() + " not exist or not login,switch faild...");
+						user.setReceiver(null);
+					}
+				}
+				User.updateUserInOnlinerMap(user);
+				line.setMsg("switch to " +(user.getReceiver() == null?"ALL":user.getReceiver()));
+			}else{
+				line.setMsg(" please login first!!");
+			}
+			
 		}else if (line.getCmd().equals(line.HISTORY_CMD)){
 			User user = User.getUserBySocket(sock);
 			if (user != null){
 				line.setMsg(MsgService.getAllMsgByUser(user));
+			}else{
+				line.setMsg(" please login first!!");
+			}
+		}else if (line.getCmd().equals(line.CVIEW_CMD)){
+			User user = User.getUserBySocket(sock);
+			if (user != null){
+				if (user.getState() == 0){
+					user.setState(-1);
+					
+				}else{
+					user.setState(0);
+				}
+				User.updateUserInOnlinerMap(user);
+				line.setMsg("View "+ (user.getState() ==0?"ON":"OFF"));
+			}else{
+				line.setMsg(" please login first!!");
+			}
+		}else if (line.getCmd().equals(line.STATE_CMD)){
+			User user = User.getUserBySocket(sock);
+			if (user != null){
+				StringBuffer sb = new StringBuffer("Current State:");
+				sb.append("\r\nlogin name: ").append(user.getName());
+				sb.append("\r\nreceiver:").append(user.getReceiver()==null?"ALL":user.getReceiver());
+				sb.append("\r\nview:").append(user.getState() == 0?"ON":"OFF");
+				line.setMsg(sb.toString());
 			}else{
 				line.setMsg(" please login first!!");
 			}

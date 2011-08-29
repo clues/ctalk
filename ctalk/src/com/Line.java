@@ -8,8 +8,11 @@ public class Line {
 	public static String REG_CMD = "-reg";//2
 	public static String LOGIN_CMD ="-login";//3
 	public static String QUIT_CMD="-quit";//4
-	public static String ONLINER_CMD="-onliner";//5
+	public static String ONLINER_CMD="-liners";//5
 	public static String HISTORY_CMD ="-history";//6
+	public static String STATE_CMD = "-state";//7
+	public static String CVIEW_CMD = "-cv";//8
+	public static String TALK_CMD = "-talk";//8
 	
 	private String cmd = null;
 	private String msg;
@@ -24,7 +27,10 @@ public class Line {
 	
 	public static String helpInfo = "\t-reg username password  repassword  #register user\r\n"
 													+"\t-login username password #login bbs\r\n"
-													+"\t-onliner #get all current user\r\n"
+													+"\t-liners #get all current user\r\n"
+													+"\t-state  #pwd state,open or off talk group \r\n"
+													+"\t-cv  #change current view \r\n"
+													+"\t-talk someboay #talk to someboay\r\n"
 													+"\t-quit  #quit cTalk  \r\n"
 													+"\t-history  #view all talk record";
 	
@@ -66,19 +72,30 @@ public class Line {
 	
 	public static Line filiterLine(Line line){
 		if (line.getCmd() != null){
-			if (line.getCmd().equals(HELP_CMD) || line.getCmd().equals(QUIT_CMD) ||line.getCmd().equals(ONLINER_CMD) 
-					||line.getCmd().equals(HISTORY_CMD)){
+			if (line.getCmd().equals(HELP_CMD) 
+					|| line.getCmd().equals(QUIT_CMD) 
+					||line.getCmd().equals(ONLINER_CMD) 
+					||line.getCmd().equals(HISTORY_CMD) 
+					|| line.getCmd().equals(STATE_CMD)
+					|| line.getCmd().equals(CVIEW_CMD)){
 				if (line.getMsg() == null || line.getMsg().trim().equals("")){
 					//
 				}else{
 					line.setState(-1);
 				}
 			}else if (line.getCmd().equals(LOGIN_CMD)){
-				if (line.getMsg() == null || line.getMsg().split(" ").length != 2){
+				if (line.getMsg() == null 
+						|| line.getMsg().split(" ").length != 2){
 					line.setState(-1);
 				}
 			}else if (line.getCmd().equals(REG_CMD)){
-				if (line.getMsg() == null || line.getMsg().split(" ").length != 3){
+				if (line.getMsg() == null 
+						|| line.getMsg().split(" ").length != 3){
+					line.setState(-1);
+				}
+			}else if (line.getCmd().equals(TALK_CMD)){
+				if (line.getMsg() == null 
+						|| line.getMsg().split(" ").length != 1){
 					line.setState(-1);
 				}
 			}else {
