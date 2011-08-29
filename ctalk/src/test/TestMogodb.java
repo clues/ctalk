@@ -17,9 +17,5 @@ public class TestMogodb {
 //		}
 //		long end = System.currentTimeMillis();
 //		System.out.println("use time ms: "+ (end-start));
-		
-		System.out.println(System.getProperty("os.name"));
-		System.out.println(System.getProperty("os.arch"));
-		System.out.println(System.getProperty("os.version"));
 	}
 }
