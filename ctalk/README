@@ -1,0 +1,10 @@
+CTalk              #console talk
+
+Server write in java,database use mongodb
+
+CTalk is a simple im tool depend telnet protocol,
+CTalk have follow function:
+1 default talk to group;
+2 can talk to somebody also;
+3 can query talk records;
+4 can turn on or off others talking;
