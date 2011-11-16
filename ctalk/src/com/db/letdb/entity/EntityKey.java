@@ -1,4 +1,4 @@
-package com.db.letdb;
+package com.db.letdb.entity;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
