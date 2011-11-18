@@ -144,10 +144,6 @@ public class Line {
 	public void setState(int state) {
 		this.state = state;
 	}
-	public static void main(String[] args){
-
-		System.out.println("aa.cc.pp".replace(".", "_"));
-	}
 }
 
 

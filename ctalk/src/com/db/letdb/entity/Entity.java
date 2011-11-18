@@ -3,8 +3,15 @@ package com.db.letdb.entity;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import com.helper.ReflexHelper;
+
 
 /**
  * @created: 2011-11-16
@@ -22,6 +29,7 @@ public class Entity {
 		Method getMethod = null;
 		Method setMethod = null;
 		Map<String,Object> fieldValues = new HashMap<String,Object>();
+		fieldValues.put("class", clazz.toString().split(" ")[1]);
 		for (Field field : fields) {
 			if (field.isAnnotationPresent(EntityKey.class)){
 				key = field.getName();
@@ -49,10 +57,10 @@ public class Entity {
 				e.printStackTrace();
 			}
 		}
-		return entity2json(key,fieldValues);
+		return entity2jsonStr(key,fieldValues);
 	}
 	
-	private String entity2json(String key,Map<String,Object> map){
+	private String entity2jsonStr(String key,Map<String,Object> map){
 		StringBuffer sb = new StringBuffer();
 		if (key != null){
 			sb.append(key).append(":");
@@ -60,14 +68,11 @@ public class Entity {
 		sb.append("{");
 		if (map != null && map.size() > 0){
 			for (String name : map.keySet()) {
-				sb.append(name).append(":").append(map.get(name));
+				sb.append("\"").append(name).append("\":\"").append(map.get(name)==null?"":map.get(name)).append("\",");
 			}
+			sb.deleteCharAt(sb.length()-1);
 		}
 		sb.append("}");
 		return sb.toString();
-	}
-	
-	public static void main(String[] args){
-		System.out.println(new Entity().toString());
 	}
 }
