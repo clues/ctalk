@@ -63,19 +63,19 @@ public class ReflexHelper {
 	}
 	
 	public static Object getAdptType(String type,Object value){
-		if (Long.class.getName().equals(type)){
-			return  Long.valueOf(value.toString());
-		}else if(String.class.getName().equals(type)){
+		if (String.class.getName().equals(type)){
 			return (String)value;
-		}else if(Integer.class.getName().equals(type)){
+		}else if(Integer.class.getName().equals(type) || "int".equals(type)){
 			return Integer.valueOf(value.toString());
-		}else if(Byte.class.getName().equals(type)){
+		}else if(Long.class.getName().equals(type) || "long".equals(type)){
+			return  Long.valueOf(value.toString());
+		}else if(Byte.class.getName().equals(type) || "byte".equals(type)){
 			return Byte.valueOf(value.toString());
-		}else if(Short.class.getName().equals(type)){
-			return Short.valueOf(value.toString());
-		}else if(Float.class.getName().equals(type)){
+		}else if(Float.class.getName().equals(type) || "float".equals(type)){
 			return Float.valueOf(value.toString());
-		}else if(Double.class.getName().equals(type)){
+		}else if(Short.class.getName().equals(type) || "short".equals(type)){
+			return Short.valueOf(value.toString());
+		}else if(Double.class.getName().equals(type) || "double".equals(type)){
 			return Double.valueOf(value.toString());
 		}
 		return null;

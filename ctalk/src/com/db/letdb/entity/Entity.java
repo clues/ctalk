@@ -3,14 +3,8 @@ package com.db.letdb.entity;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import com.helper.ReflexHelper;
 
 
 /**
@@ -61,18 +55,18 @@ public class Entity {
 	}
 	
 	private String entity2jsonStr(String key,Map<String,Object> map){
-		StringBuffer sb = new StringBuffer();
+		StringBuffer sb = new StringBuffer("{");
 		if (key != null){
 			sb.append(key).append(":");
 		}
 		sb.append("{");
 		if (map != null && map.size() > 0){
 			for (String name : map.keySet()) {
-				sb.append("\"").append(name).append("\":\"").append(map.get(name)==null?"":map.get(name)).append("\",");
+				sb.append("'").append(name).append("':'").append(map.get(name)==null?"":map.get(name)).append("',");
 			}
 			sb.deleteCharAt(sb.length()-1);
 		}
-		sb.append("}");
+		sb.append("}}");
 		return sb.toString();
 	}
 }

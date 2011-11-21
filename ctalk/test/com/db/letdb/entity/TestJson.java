@@ -12,7 +12,7 @@ public class TestJson {
 
 	@Test
 	public void testInstanceWithKey() {
-		String str = "id:{\"id\":\"123\",\"name\":\"jias chao\",\"class\":\"com.db.letdb.Example\"}";
+		String str = "id:{'id':'123','name':'jias chao','state':'0','class':'com.db.letdb.Example'}";
 		Json json = Json.instance(str);
 		Assert.assertEquals("jias chao", json.getProperty("name"));
 		Assert.assertEquals("id", json.getKey());
@@ -22,7 +22,7 @@ public class TestJson {
 	
 	@Test
 	public void testInstanceWithoutKey() {
-		String str = "{\"id\":\"123\",\"name\":\"jias chao\",\"class\":\"com.db.letdb.Example\"}";
+		String str = "id:{'id':'123','name':'jias chao','state':'0','class':'com.db.letdb.Example'}";
 		Json json = Json.instance(str);
 		Assert.assertEquals("jias chao", json.getProperty("name"));
 		Assert.assertNull(json.getKey());

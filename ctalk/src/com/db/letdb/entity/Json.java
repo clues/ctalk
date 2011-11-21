@@ -29,9 +29,9 @@ public class Json {
 				bstart = 0;
 			}
 			String value = jsonStr.substring(bstart+1,jsonStr.length()-1);
-			String[] tokens = value.split("\",\"");
+			String[] tokens = value.split("','");
 			for(int i=0 ;i<tokens.length;i++){
-				String[] keyValue = tokens[i].split("\":\"");
+				String[] keyValue = tokens[i].split("':'");
 				if(i == 0){
 					fields.put(keyValue[0].substring(1), keyValue[1]);
 				}else if (i == tokens.length-1){

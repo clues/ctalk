@@ -1,5 +1,7 @@
 package com.db.letdb;
 
+import java.util.List;
+
 import com.db.letdb.entity.Entity;
 import com.db.letdb.entity.EntityKey;
 
@@ -13,8 +15,11 @@ public class Example extends Entity{
 	
 	@EntityKey
 	private Long id;
-
 	
+	private int state;
+	
+	private List<Example> titles;
+
 	public String getName() {
 		return name;
 	}
@@ -29,6 +34,22 @@ public class Example extends Entity{
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
+	}
+
+	public List<Example> getTitles() {
+		return titles;
+	}
+
+	public void setTitles(List<Example> titles) {
+		this.titles = titles;
 	}
 
 }
