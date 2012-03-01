@@ -44,12 +44,12 @@ public class Example extends Entity{
 		this.state = state;
 	}
 
-	public List<Example> getTitles() {
-		return titles;
-	}
-
-	public void setTitles(List<Example> titles) {
-		this.titles = titles;
-	}
+//	public List<Example> getTitles() {
+//		return titles;
+//	}
+//
+//	public void setTitles(List<Example> titles) {
+//		this.titles = titles;
+//	}
 
 }

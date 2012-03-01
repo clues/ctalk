@@ -30,7 +30,7 @@ public class TestEntity {
 			inner.setName("chuntian"+i);
 			exs.add(inner);
 		}
-		ex.setTitles(exs);
+		//ex.setTitles(exs);
 		
 		System.out.println(ex.toString());
 	}

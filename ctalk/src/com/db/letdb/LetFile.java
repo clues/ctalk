@@ -4,13 +4,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.db.letdb.entity.Json;
+import com.db.letdb.file.InWrite;
 import com.helper.ByteHelper;
+import com.helper.ReflexHelper;
 
 
 /**
@@ -19,98 +25,59 @@ import com.helper.ByteHelper;
  *
  */
 public class LetFile {
-	private static final Log log = LogFactory.getLog(LetFile.class);
-	private static final String DB_DIR = "letdb";
-	private static final String LOCK_FILE = "letdb/.lock";
-	private static final String INDEX_FILE = "letdb/.index";
-	private static Map<Long,Index> indexMap = new Hashtable<Long,Index>();
-	
-	public void init() throws IOException{
-		File file = new File(DB_DIR);
-		if (!file.exists() || !file.isDirectory()){
-			log.info("crate dir letdb/ ");
-			file.mkdir();
-		}else{
-			File indexFile = new File(INDEX_FILE);
-			if (!indexFile.exists()){
-				log.info("crate file .index ");
-				indexFile.createNewFile();
-			}
-			loadIndex();
+	public static String filePath = "data";
+	private List<String> tables = new ArrayList<String>() ;
+	private Map<String,Map> map = new HashMap<String,Map>();
+	//find all collection
+	public void loadAllDocument(){
+		List<String> names = new ArrayList<String>() ;
+		File file =new File(filePath);
+		if (file.isDirectory()){
+			String[] fileNames = file.list();
+			for (String name : fileNames) {
+				names.add(name);
+			} 
+		}
+		if (names.size() > 0){
+			this.setTables(names);
 		}
 	}
 	
-	/**
-	 * load index from .index file to indexMap in memory
-	 * @throws IOException
-	 */
-	private void loadIndex() throws IOException{
-		InputStream in = new FileInputStream(new File(INDEX_FILE));
-		log.debug(".index found");
-		int off = 0;
-		byte[] b = new byte[24];
-		while (in.read(b, off, 24) != -1){
-			Index index = Index.getInstance(b);
-			if (index != null){
-				indexMap.put(index.getId(),index);
-				off += 24;
+	public void loadAllEntity(){
+		if (this.tables.size() > 0){
+			try{
+				for (String name : this.tables) {
+					InWrite iw = new InWrite(name);
+					String line = null;
+					Map docs = new HashMap();
+					while ((line = iw.readNextLine()) != null){
+						Json json = Json.instance(line);
+						Object o = ReflexHelper.instance(json);
+						docs.put(json.getKeyValue(), o);
+					}
+					map.put(name, docs);
+				}
+			}catch(IOException e){
+				e.printStackTrace();
 			}
-		}
-		log.debug("load index in map account: "+indexMap.size());
-	}
-	
-	
-}
 
-/**
- * doc map index
- * @author chao
- * 
- */
-class Index{
-	private long id = -1;       //doc id
-	private int state = 0;      //-1:this doc has been delete; 0:normal
-	private long pos = 0;       //doc start postion
-	private int len = 0;        //doc take size  
-	public static int INDEX_LEN = 24;
-	
-	public static Index getInstance(byte[] content){
-		if (content.length == INDEX_LEN){
-			Index index = new Index();
-			
-			index.setId(ByteHelper.getLong(content, 0));
-			index.setState(ByteHelper.getInt(content, 4));
-			index.setPos(ByteHelper.getLong(content, 12));
-			index.setLen(ByteHelper.getInt(content, 20));
-			
-			return index;
-		}else{
-			return null;
 		}
 	}
 	
-	public int getState() {
-		return state;
+	
+	public void syncToDisk(Map docs){
+		
 	}
-	public void setState(int state) {
-		this.state = state;
+	
+	public void syncToDisk(String context){
+		
 	}
-	public long getPos() {
-		return pos;
+
+	public List<String> getTables() {
+		return tables;
 	}
-	public void setPos(long pos) {
-		this.pos = pos;
-	}
-	public int getLen() {
-		return len;
-	}
-	public void setLen(int len) {
-		this.len = len;
-	}
-	public long getId() {
-		return id;
-	}
-	public void setId(long id) {
-		this.id = id;
+
+	public void setTables(List<String> tables) {
+		this.tables = tables;
 	}
 }

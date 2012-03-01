@@ -25,7 +25,7 @@ public class InWrite {
 		openFile();
 	}
 	
-	public void openFile() throws IOException{
+	private void openFile() throws IOException{
 		File file = new File(this.fileName);
 		if (!file.exists()){
 			file.createNewFile();
@@ -43,8 +43,6 @@ public class InWrite {
 	}
 	
 	public String readNextLine() throws IOException{
-		read.skip(indexOfLine);
-		indexOfLine = indexOfLine + 5;
 		return read.readLine();
 	}
 }
