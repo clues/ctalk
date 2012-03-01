@@ -8,13 +8,26 @@ import java.util.Hashtable;
  */
 public class Index {
 
-	public static int LENGTH_INDEX = 56;
+	public static int LENGTH_INDEX = 40;
 	
-	public static Hashtable indexTable = new Hashtable();
+	public static Hashtable<ByteArray,DocIndex> indexTable = new Hashtable<ByteArray,DocIndex>();
 	
-	private String md5key;
+	
+	private ByteArray md5key;
 	
 	private DocIndex docIndex;
 	
+	public Index(){
+		
+	}
+	
+	public Index(ByteArray md5key,DocIndex docIndex){
+		this.md5key = md5key;
+		//this.docIndex = docIndex;
+	}
+	
+	public static DocIndex getDocIndex(ByteArray md5key){
+		return (DocIndex)indexTable.get(md5key);
+	}
 	
 }

@@ -36,6 +36,13 @@ public class DocIndex {
 		this.fileName = ByteHelper.getString(bytes, 8);
 	}
 	
+	public DocIndex(int length,int offset,String fileName){
+		this.length = length;
+		this.offset = offset;
+		this.fileName = fileName;
+		
+	}
+	
 	
 	public byte[] getBytes() throws IOException{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

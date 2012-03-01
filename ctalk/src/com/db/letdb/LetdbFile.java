@@ -1,13 +1,18 @@
 package com.db.letdb;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import com.alibaba.fastjson.JSON;
 
 /**
  * @created: Feb 29, 2012
@@ -20,6 +25,8 @@ public class LetdbFile {
 	public static String dbRoot = "letdb/";
 	
 	public static File root;
+	
+	public static File indexFile;
 	
 	public boolean checkFileisExist(){
 		root = new File(dbRoot);
@@ -42,7 +49,7 @@ public class LetdbFile {
 	}
 	
 	private void checkIndex() throws IOException{
-		File indexFile = new File(dbRoot+"index.txt");
+		indexFile = new File(dbRoot+"index");
 		if (!indexFile.exists() || indexFile.isDirectory()){
 			log.info("checked index not exist or is directory,\n" +
 					"will clear current directory and create new index file");
@@ -63,19 +70,37 @@ public class LetdbFile {
 		}
 	}
 	
-	public void loadIndex(File indexFile) throws IOException{
+	//load all index form disk in to hashtab
+	public int loadIndex() throws IOException{
+		int count = 0;
 		BufferedInputStream in = new BufferedInputStream(new FileInputStream(indexFile));
 		byte[] indexBytes = new byte[Index.LENGTH_INDEX];
-		
 		while (in.read(indexBytes) != -1){
 			byte[] md5keybytes = Arrays.copyOfRange(indexBytes, 0, Index.LENGTH_INDEX);
-			Index.indexTable.put(new String(md5keybytes),
-					new DocIndex(Arrays.copyOfRange(indexBytes,Index.LENGTH_INDEX,DocIndex.LENGTH_DOCINDEX)));
+			Index.indexTable.put(new ByteArray(md5keybytes),
+					new DocIndex(Arrays.copyOfRange(indexBytes,16,DocIndex.LENGTH_DOCINDEX)));
+			count++;
 		}
+		return count;
 	}
 	
-	public void sync(){
+	//flush hashtable to disk
+	public int sync() throws IOException{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		for (Iterator<ByteArray> it = Index.indexTable.keySet().iterator();it.hasNext();){
+			ByteArray md5key = it.next();
+			out.write(md5key.getArray());
+			out.write(((DocIndex)Index.indexTable.get(md5key)).getBytes());
+		}
 		
+		indexFile.delete();
+		indexFile.createNewFile();
+		OutputStream os = new FileOutputStream(indexFile);
+		os.write(out.toByteArray());
+		os.flush();
+		if (os != null)
+			os.close();
+		return out.toByteArray().length;
 	}
 	
 }
