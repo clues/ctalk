@@ -18,7 +18,7 @@ public class DocumentTest {
 		assertEquals("{}",doc.getJsonStr());
 		
 		
-		doc.setId("abc-12");
+		doc.setId(System.currentTimeMillis());
 		assertEquals("{\"id\":\"abc-12\"}",doc.getJsonStr());
 	}
 	
