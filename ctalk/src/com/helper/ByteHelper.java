@@ -82,6 +82,10 @@ public class ByteHelper {
 		return ByteHelper.getBytes(value, 4);
 	}
 	
+	public static byte[] getBytes(long value) {
+		return getBytes(value,8);
+	}
+	
 	public static byte[] getBytes(long value, int len) {
 		if (len > 8)
 			throw new IllegalArgumentException(

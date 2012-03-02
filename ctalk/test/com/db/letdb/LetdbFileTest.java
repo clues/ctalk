@@ -37,7 +37,7 @@ public class LetdbFileTest {
 	@Test
 	public void testSync() throws IOException{
 		indexFileInit();
-		int len = lf.sync();
+		int len = DocIndex.sync();
 		assertEquals(120,len);
 	}
 	
@@ -57,12 +57,12 @@ public class LetdbFileTest {
 	@Test
 	public void testLoadIndex() throws IOException{
 		indexFileInit();
-		lf.sync();
-		int count = lf.loadIndex();
+		DocIndex.sync();
+		int count = lf.loadDocIndex();
 		assertEquals(3,count);
 		
 		messageDigest.update("12589abc1".getBytes());
-		DocIndex docIndex = Index.getDocIndex(new ByteArray(messageDigest.digest()));
+		DocIndex docIndex = DocIndex.getDocIndex(new ByteArray(messageDigest.digest()));
 		
 		assertEquals(12,docIndex.getLength());
 		
@@ -70,19 +70,19 @@ public class LetdbFileTest {
 	
 	
 	private void indexFileInit(){
-		LetdbFile.indexFile = new File("letdb/"+"index");
-		Index.indexTable.clear();
+		LetdbFile.docindexFile = new File("letdb/"+LetdbFile.DocIndexName);
+		DocIndex.indexTable.clear();
 		messageDigest.reset();
 		messageDigest.update("12589abc1".getBytes());
-		Index.indexTable.put(new ByteArray(messageDigest.digest()), new DocIndex(12,589,"abc1"));
+		DocIndex.indexTable.put(new ByteArray(messageDigest.digest()), new DocIndex(new ByteArray(messageDigest.digest()),12,589,"abc1"));
 		
 		messageDigest.reset();
 		messageDigest.update("13955abc2".getBytes());
-		Index.indexTable.put(new ByteArray(messageDigest.digest()), new DocIndex(13,955,"abc2"));
+		DocIndex.indexTable.put(new ByteArray(messageDigest.digest()), new DocIndex(new ByteArray(messageDigest.digest()),13,955,"abc2"));
 		
 		messageDigest.reset();
 		messageDigest.update("141000abc3".getBytes());
-		Index.indexTable.put(new ByteArray(messageDigest.digest()), new DocIndex(14,1000,"abc3"));
+		DocIndex.indexTable.put(new ByteArray(messageDigest.digest()), new DocIndex(new ByteArray(messageDigest.digest()),14,1000,"abc3"));
 	}
 
 }

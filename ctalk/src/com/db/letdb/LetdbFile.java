@@ -13,6 +13,7 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.alibaba.fastjson.JSON;
+import com.helper.ByteHelper;
 
 /**
  * @created: Feb 29, 2012
@@ -22,14 +23,20 @@ public class LetdbFile {
 
 	private static final Log log = LogFactory.getLog(LetdbFile.class);
 	
-	public static String dbRoot = "letdb/";
+	public static String DbRoot = "letdb/";
+	
+	public static String DocIndexName = "docIndex";
+	
+	public static String StoreFileIndexName = "sotreIndex";
 	
 	public static File root;
 	
-	public static File indexFile;
+	public static File docindexFile;
+	
+	public static File storeIndexFile;
 	
 	public boolean checkFileisExist(){
-		root = new File(dbRoot);
+		root = new File(DbRoot);
 		if (!root.exists()){
 			log.info("checked /letdb not exist,will mkdir it..");
 			root.mkdir();
@@ -49,12 +56,12 @@ public class LetdbFile {
 	}
 	
 	private void checkIndex() throws IOException{
-		indexFile = new File(dbRoot+"index");
-		if (!indexFile.exists() || indexFile.isDirectory()){
+		docindexFile = new File(DbRoot+DocIndexName);
+		if (!docindexFile.exists() || docindexFile.isDirectory()){
 			log.info("checked index not exist or is directory,\n" +
 					"will clear current directory and create new index file");
 			clearAllChildren(root);
-			indexFile.createNewFile();
+			docindexFile.createNewFile();
 		}
 	}
 	
@@ -71,38 +78,48 @@ public class LetdbFile {
 	}
 	
 	//load all index form disk in to hashtab
-	public int loadIndex() throws IOException{
+	public int loadDocIndex() throws IOException{
 		int count = 0;
-		BufferedInputStream in = new BufferedInputStream(new FileInputStream(indexFile));
-		byte[] indexBytes = new byte[Index.LENGTH_INDEX];
+		BufferedInputStream in = new BufferedInputStream(new FileInputStream(docindexFile));
+		byte[] indexBytes = new byte[DocIndex.LENGTH_INDEX];
 		while (in.read(indexBytes) != -1){
-			byte[] md5keybytes = Arrays.copyOfRange(indexBytes, 0, Index.LENGTH_INDEX);
-			Index.indexTable.put(new ByteArray(md5keybytes),
-					new DocIndex(Arrays.copyOfRange(indexBytes,16,DocIndex.LENGTH_DOCINDEX)));
+			byte[] md5keybytes = Arrays.copyOfRange(indexBytes, 0, DocIndex.LENGTH_INDEX);
+			DocIndex.indexTable.put(new ByteArray(md5keybytes),
+					new DocIndex(Arrays.copyOfRange(indexBytes,16,DocIndex.LENGTH_INDEX)));
 			count++;
 		}
 		return count;
 	}
 	
-	//flush hashtable to disk
-	public int sync() throws IOException{
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		for (Iterator<ByteArray> it = Index.indexTable.keySet().iterator();it.hasNext();){
-			ByteArray md5key = it.next();
-			out.write(md5key.getArray());
-			out.write(((DocIndex)Index.indexTable.get(md5key)).getBytes());
+	
+	public int loadStoreFileIndex() throws IOException{
+		int count = 0;
+		BufferedInputStream in = new BufferedInputStream(new FileInputStream(storeIndexFile));
+		byte[] indexBytes = new byte[StorageFileIndex.LENGTH_INDEX];
+		while (in.read(indexBytes) != -1){
+			int id = ByteHelper.getInt(indexBytes,4);
+			StorageFileIndex index = StorageFileIndex.getInstance(Arrays.copyOfRange(indexBytes,4,StorageFileIndex.LENGTH_INDEX -4));
+			if (index != null){
+				StorageFileIndex.indexMap.put(id,index);
+				count++;
+			}
 		}
-		
-		indexFile.delete();
-		indexFile.createNewFile();
-		OutputStream os = new FileOutputStream(indexFile);
-		os.write(out.toByteArray());
-		os.flush();
-		if (os != null)
-			os.close();
-		return out.toByteArray().length;
+		return count;
 	}
 	
+	public int initStoreFileIndex() throws IOException{
+		int count = 0;
+		storeIndexFile = new File(DbRoot+StoreFileIndexName);
+		preCheckFileExist(storeIndexFile);
+		return count;
+	}
+	
+	
+	private void preCheckFileExist(File file) throws IOException{
+		if (!file.exists())
+			file.createNewFile();
+		
+	}
 	
 	
 }
