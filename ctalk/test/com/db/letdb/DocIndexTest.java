@@ -24,7 +24,7 @@ public class DocIndexTest {
 	}
 	
 	
-	@Test
+	@Test  
 	public void testDocIndex2bytes() throws IOException{
 		DocIndex index = new DocIndex();
 		index.setLength(256);
