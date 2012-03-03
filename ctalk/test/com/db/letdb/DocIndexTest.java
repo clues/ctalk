@@ -59,6 +59,8 @@ public class DocIndexTest {
 		assertEquals(256,tmp.getLength());
 		assertEquals(32459,tmp.getOffset());
 		assertEquals("sotre1.txt",tmp.getFileName());
+		
+		
 	}
 
 }
