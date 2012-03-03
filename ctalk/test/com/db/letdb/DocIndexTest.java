@@ -38,6 +38,8 @@ public class DocIndexTest {
 		
 		byte[] bytes = index.getBytes();
 		
+		
+		
 		assertEquals(DocIndex.LENGTH_INDEX,bytes.length);
 		
 	}
