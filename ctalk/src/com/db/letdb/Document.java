@@ -21,7 +21,7 @@ public class Document {
 		return jstr.getBytes();
 	}
 	
-	protected Document getInstance(String jstr){
+	public static Document getInstance(String jstr){
 		Document doc = JSON.parseObject(jstr, Document.class);
 		return doc;
 	}

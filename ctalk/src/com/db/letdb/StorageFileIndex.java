@@ -1,15 +1,10 @@
 package com.db.letdb;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import com.helper.ByteHelper;
 
 /**
  * @created: Mar 2, 2012
@@ -17,90 +12,89 @@ import com.helper.ByteHelper;
  */
 public class StorageFileIndex {
 
-	public static int SIZE_DEFAULT = 1024*1024;
+	public static long SIZE_DEFAULT_MAX = 1024*1024;
 	
 	public static String FILENAME_DEFAULT = "letdb";
 	
-	public static Map<Integer,StorageFileIndex> indexMap = new HashMap<Integer,StorageFileIndex>();
-	
-	public static int LENGTH_INDEX = 32;
-	
+	public static Map<String,StorageFileIndex> indexMap = new HashMap<String,StorageFileIndex>();
+
 	public static int STATUS_NEW = 0;
-	
+
 	public static int STATUS_OLD = 1;
-	
+
 	public static int STATUS_UNLOAD = -1;
-	
-	private int id;
 	
 	private String fileName;
 	
 	private long lastModifyTime;
 	
-	private int size;
+	private long size;
 	
 	private int status;
 	
 	private File fd;
 	
-
-	public static StorageFileIndex getInstance(byte[] bytes){
-		StorageFileIndex index = new StorageFileIndex();
-		index.setId(ByteHelper.getInt(bytes, 0));
-		index.setSize(ByteHelper.getInt(bytes, 4));
-		index.setStatus(ByteHelper.getInt(bytes, 8));
-		index.setLastModifyTime(ByteHelper.getInt(bytes, 12));
-		index.setFileName(ByteHelper.getString(bytes, 20));
-		index.setFd(null);
+	public StorageFileIndex(){
 		
-		File file = new File(LetdbFile.DbRoot+index.getFileName());
-		if (file.exists()){
-			if (index.getLastModifyTime() == file.lastModified()){
-				index.setFd(file);
+	}
+	
+	public StorageFileIndex(File file){
+		this.fileName = file.getName();
+		this.lastModifyTime = file.lastModified();
+		this.size = file.getTotalSpace();
+		this.fd = file;
+		if (this.getSize() < SIZE_DEFAULT_MAX){
+			this.status = STATUS_NEW;
+		}else{
+			this.status = STATUS_OLD;
+		}
+	}
+	
+	public StorageFileIndex getUseableFile() throws IOException{
+		for (Iterator<StorageFileIndex> it = indexMap.values().iterator();it.hasNext();){
+			StorageFileIndex index = it.next();
+			if (index.getStatus() == STATUS_NEW){
 				return index;
 			}
 		}
-		return null;
+		return createNewStoreFile();
 	}
 	
-	public byte[] getBytes() throws IOException{
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		out.write(ByteHelper.getBytes(this.getId()));
-		out.write(ByteHelper.getBytes(this.getSize()));
-		out.write(ByteHelper.getBytes(this.getStatus()));
-		
-		out.write(ByteHelper.getBytes(this.getLastModifyTime()));
-		out.write(ByteHelper.getBytes(this.getFileName()));
-		for (int i = out.size();i < LENGTH_INDEX;i++){
-			out.write(0);
+	public static int loadIndex(){
+		indexMap.clear();
+		int count = 0;
+		File root = new File(LetdbFile.DbRoot);
+		File[] list = root.listFiles();
+		for (File file : list){
+			if (file.isFile() && file.getName().startsWith("letdb")){
+				StorageFileIndex sindex = new StorageFileIndex(file);
+				indexMap.put(file.getName(), sindex);
+				count++;
+			}
 		}
-		return out.toByteArray();
+		return count;
 	}
 	
-	//flush map to disk
-	public static int sync() throws IOException{
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		for (Iterator<Integer> it = indexMap.keySet().iterator();it.hasNext();){
-			out.write(((StorageFileIndex)indexMap.get(it.next())).getBytes());
+	public void updateIndex(File file){
+		StorageFileIndex sindex = new StorageFileIndex(file);
+		indexMap.put(file.getName(), sindex);
+	}
+	
+	public static File  getFD(String fileName){
+		StorageFileIndex index = indexMap.get(fileName);
+		return index.getFd();
+	}
+	
+	
+	private StorageFileIndex createNewStoreFile() throws IOException{
+		File file = new File(LetdbFile.DbRoot+FILENAME_DEFAULT+System.currentTimeMillis());
+		if ( file.exists()){
+			file.delete();
 		}
-		
-		LetdbFile.storeIndexFile.delete();
-		LetdbFile.storeIndexFile.createNewFile();
-		OutputStream os = new FileOutputStream(LetdbFile.storeIndexFile);
-		os.write(out.toByteArray());
-		os.flush();
-		if (os != null)
-			os.close();
-		return out.toByteArray().length;
-	}
-	
-	
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
+		file.createNewFile();
+		StorageFileIndex sindex = new StorageFileIndex(file);
+		indexMap.put(file.getName(), sindex);
+		return sindex;
 	}
 
 	public String getFileName() {
@@ -119,13 +113,6 @@ public class StorageFileIndex {
 		this.lastModifyTime = lastModifyTime;
 	}
 
-	public int getSize() {
-		return size;
-	}
-
-	public void setSize(int size) {
-		this.size = size;
-	}
 
 	public int getStatus() {
 		return status;
@@ -141,5 +128,13 @@ public class StorageFileIndex {
 
 	public void setFd(File fd) {
 		this.fd = fd;
+	}
+
+	public long getSize() {
+		return size;
+	}
+
+	public void setSize(long size) {
+		this.size = size;
 	}
 }

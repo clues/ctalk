@@ -14,22 +14,31 @@ import org.junit.Test;
 public class StorageFileIndexTest {
 
 	@Test
-	public void testSync() throws IOException {
+	public void testLoadFileIndex() throws IOException {
+		File f0 =  new File(LetdbFile.DbRoot);
+		if (f0.exists())
+			clearAllChildren(f0);
+		f0.mkdir();
+		File f1 = new File(LetdbFile.DbRoot+StorageFileIndex.FILENAME_DEFAULT+1);
+		File f2 = new File(LetdbFile.DbRoot+StorageFileIndex.FILENAME_DEFAULT+2);
+		File f3 = new File(LetdbFile.DbRoot+StorageFileIndex.FILENAME_DEFAULT+3);
+		f1.createNewFile();
+		f2.createNewFile();
+		f3.createNewFile();
 		
-		LetdbFile.storeIndexFile = new File("letdb/"+LetdbFile.StoreFileIndexName);
-		StorageFileIndex.indexMap.clear();
-		
-		StorageFileIndex index = new StorageFileIndex();
-		index.setId(1);
-		index.setSize(123456);
-		index.setStatus(StorageFileIndex.STATUS_NEW);
-		index.setFileName("abcdef");
-		index.setLastModifyTime(9854685);
-		
-		StorageFileIndex.indexMap.put(index.getId(), index);
-		int count = StorageFileIndex.sync();
-		
-		assertEquals(StorageFileIndex.LENGTH_INDEX,count);
+		assertEquals(3,StorageFileIndex.loadIndex());
+	}
+	
+	private void clearAllChildren(File folder){
+		File[] files = folder.listFiles();
+		for (File file:files){
+			if (file.isFile()){
+				file.delete();
+			}else{
+				clearAllChildren(file);
+				file.delete();
+			}
+		}
 	}
 
 }

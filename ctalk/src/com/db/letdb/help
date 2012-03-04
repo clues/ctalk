@@ -1,0 +1,14 @@
+
+
+saveorupdate:doc;
+
+doc object -> bytes[];
+from storefileindex map get current FD;
+if (update success){
+	update storefileindex map;->doc len;FD len
+	
+	if (update storefileindex success){
+		update docindex table;	
+	}
+}
+

@@ -93,17 +93,7 @@ public class LetdbFile {
 	
 	
 	public int loadStoreFileIndex() throws IOException{
-		int count = 0;
-		BufferedInputStream in = new BufferedInputStream(new FileInputStream(storeIndexFile));
-		byte[] indexBytes = new byte[StorageFileIndex.LENGTH_INDEX];
-		while (in.read(indexBytes) != -1){
-			int id = ByteHelper.getInt(indexBytes,4);
-			StorageFileIndex index = StorageFileIndex.getInstance(Arrays.copyOfRange(indexBytes,4,StorageFileIndex.LENGTH_INDEX -4));
-			if (index != null){
-				StorageFileIndex.indexMap.put(id,index);
-				count++;
-			}
-		}
+		int count = StorageFileIndex.loadIndex();
 		return count;
 	}
 	

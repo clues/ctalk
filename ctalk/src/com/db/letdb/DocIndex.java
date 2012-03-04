@@ -19,7 +19,7 @@ public class DocIndex {
 	public static int LENGTH_INDEX = 40;
 	
 	public static Hashtable<ByteArray,DocIndex> indexTable = new Hashtable<ByteArray,DocIndex>();
-		
+	
 	//doc type,class type
 	private String clazz;
 
@@ -88,6 +88,10 @@ public class DocIndex {
 	
 	public static DocIndex getDocIndex(ByteArray md5key){
 		return (DocIndex)indexTable.get(md5key);
+	}
+	
+	public static void updateIndex(){
+		
 	}
 	
 	public String getClazz() {
