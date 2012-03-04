@@ -21,8 +21,13 @@ public class Document {
 		return jstr.getBytes();
 	}
 	
-	public static Document getInstance(String jstr){
-		Document doc = JSON.parseObject(jstr, Document.class);
+	public static Document getInstance(String jstr,String clazz) throws ClassNotFoundException{
+		Document doc = null;
+		if (clazz.equals(ExampleEntity.class.getName())){
+			doc = JSON.parseObject(jstr,ExampleEntity.class);
+		}else if(clazz.equals(Document.class.getName())){
+			doc = JSON.parseObject(jstr,Document.class);
+		}
 		return doc;
 	}
 

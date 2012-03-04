@@ -78,14 +78,16 @@ public class LetdbFile {
 	}
 	
 	//load all index form disk in to hashtab
-	public int loadDocIndex() throws IOException{
+	public static int loadDocIndex() throws IOException{
 		int count = 0;
+		if (docindexFile == null || !docindexFile.exists())
+			docindexFile = new File(DbRoot+DocIndexName);
 		BufferedInputStream in = new BufferedInputStream(new FileInputStream(docindexFile));
 		byte[] indexBytes = new byte[DocIndex.LENGTH_INDEX];
 		while (in.read(indexBytes) != -1){
-			byte[] md5keybytes = Arrays.copyOfRange(indexBytes, 0, DocIndex.LENGTH_INDEX);
-			DocIndex.indexTable.put(new ByteArray(md5keybytes),
-					new DocIndex(Arrays.copyOfRange(indexBytes,16,DocIndex.LENGTH_INDEX)));
+			Long id = ByteHelper.getLong(indexBytes, 0);
+			DocIndex.indexTable.put(id,
+					new DocIndex(Arrays.copyOfRange(indexBytes,0,DocIndex.LENGTH_INDEX)));
 			count++;
 		}
 		return count;

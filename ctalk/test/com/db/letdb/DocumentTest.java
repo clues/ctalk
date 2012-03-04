@@ -24,11 +24,11 @@ public class DocumentTest {
 	
 	
 	@Test
-	public void testJson2Doc(){
+	public void testJson2Doc() throws ClassNotFoundException{
 		
 		String str = "{\"id\":\"abc-12\"}";
-		Document doc = new Document().getInstance(str);
-		assertEquals("abc-12",doc.getId());
+		Document doc = Document.getInstance(str,Document.class.getName());
+		assertEquals(Document.class.getName(),doc.getClass().getName());
 	}
 
 }

@@ -9,6 +9,9 @@ import java.security.NoSuchAlgorithmException;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.db.letdb.ByteArray;
+import com.db.letdb.DocIndex;
+
 /**
  * @created: Mar 1, 2012
  * @author : jias chao<lino.chao@gmail.com>
@@ -19,8 +22,7 @@ public class DocIndexTest {
 	
 	@Before
 	public void setup() throws NoSuchAlgorithmException {
-		messageDigest = MessageDigest.getInstance("MD5");  
-        messageDigest.reset();  
+	
 	}
 	
 	
@@ -32,13 +34,7 @@ public class DocIndexTest {
 		index.setFileName("sotre1.txt");
 		index.setClazz(DocIndex.class.getName());
 		
-		messageDigest.reset();
-		messageDigest.update("12589abc1".getBytes());
-		index.setMd5key(new ByteArray(messageDigest.digest()));
-		
 		byte[] bytes = index.getBytes();
-		
-		
 		
 		assertEquals(DocIndex.LENGTH_INDEX,bytes.length);
 		
@@ -52,9 +48,6 @@ public class DocIndexTest {
 		index.setFileName("sotre1.txt");
 		index.setClazz(DocIndex.class.getName());
 		
-		messageDigest.reset();
-		messageDigest.update("12589abc1".getBytes());
-		index.setMd5key(new ByteArray(messageDigest.digest()));
 		
 		DocIndex tmp = new DocIndex(index.getBytes());
 		

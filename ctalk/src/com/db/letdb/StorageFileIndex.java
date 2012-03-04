@@ -41,7 +41,7 @@ public class StorageFileIndex {
 	public StorageFileIndex(File file){
 		this.fileName = file.getName();
 		this.lastModifyTime = file.lastModified();
-		this.size = file.getTotalSpace();
+		this.size = file.length();
 		this.fd = file;
 		if (this.getSize() < SIZE_DEFAULT_MAX){
 			this.status = STATUS_NEW;
@@ -50,7 +50,7 @@ public class StorageFileIndex {
 		}
 	}
 	
-	public StorageFileIndex getUseableFile() throws IOException{
+	public static StorageFileIndex getUseableStorageFileIndex() throws IOException{
 		for (Iterator<StorageFileIndex> it = indexMap.values().iterator();it.hasNext();){
 			StorageFileIndex index = it.next();
 			if (index.getStatus() == STATUS_NEW){
@@ -75,9 +75,15 @@ public class StorageFileIndex {
 		return count;
 	}
 	
-	public void updateIndex(File file){
-		StorageFileIndex sindex = new StorageFileIndex(file);
-		indexMap.put(file.getName(), sindex);
+	public static void updateIndex(String fileName,long size){
+		StorageFileIndex index = indexMap.get(fileName);
+		if (index != null){
+			index.setSize(size);
+			if (index.getSize() >= SIZE_DEFAULT_MAX){
+				index.setStatus(STATUS_OLD);
+			}
+			indexMap.put(fileName, index);
+		}
 	}
 	
 	public static File  getFD(String fileName){
@@ -85,8 +91,12 @@ public class StorageFileIndex {
 		return index.getFd();
 	}
 	
+	public static StorageFileIndex getStorageFileIndex(String fileName){
+		StorageFileIndex index = indexMap.get(fileName);
+		return index;
+	}
 	
-	private StorageFileIndex createNewStoreFile() throws IOException{
+	private static StorageFileIndex createNewStoreFile() throws IOException{
 		File file = new File(LetdbFile.DbRoot+FILENAME_DEFAULT+System.currentTimeMillis());
 		if ( file.exists()){
 			file.delete();

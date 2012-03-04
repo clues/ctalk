@@ -38,7 +38,7 @@ public class LetdbFileTest {
 	public void testSync() throws IOException{
 		indexFileInit();
 		int len = DocIndex.sync();
-		assertEquals(120,len);
+		assertEquals(384,len);
 	}
 	
 	@Test
@@ -61,8 +61,7 @@ public class LetdbFileTest {
 		int count = lf.loadDocIndex();
 		assertEquals(3,count);
 		
-		messageDigest.update("12589abc1".getBytes());
-		DocIndex docIndex = DocIndex.getDocIndex(new ByteArray(messageDigest.digest()));
+		DocIndex docIndex = DocIndex.getDocIndex(new Long(1));
 		
 		assertEquals(12,docIndex.getLength());
 		
@@ -72,17 +71,17 @@ public class LetdbFileTest {
 	private void indexFileInit(){
 		LetdbFile.docindexFile = new File("letdb/"+LetdbFile.DocIndexName);
 		DocIndex.indexTable.clear();
-		messageDigest.reset();
-		messageDigest.update("12589abc1".getBytes());
-		DocIndex.indexTable.put(new ByteArray(messageDigest.digest()), new DocIndex(new ByteArray(messageDigest.digest()),12,589,"abc1"));
+
+		Long id = new Long(1);
+		DocIndex.indexTable.put(id, new DocIndex(id,589,12,"abc1",ExampleEntity.class.getName()));
 		
-		messageDigest.reset();
-		messageDigest.update("13955abc2".getBytes());
-		DocIndex.indexTable.put(new ByteArray(messageDigest.digest()), new DocIndex(new ByteArray(messageDigest.digest()),13,955,"abc2"));
+		id = new Long(2);
+		DocIndex.indexTable.put(id, new DocIndex(id,955,13,"abc2",ExampleEntity.class.getName()));
+
 		
-		messageDigest.reset();
-		messageDigest.update("141000abc3".getBytes());
-		DocIndex.indexTable.put(new ByteArray(messageDigest.digest()), new DocIndex(new ByteArray(messageDigest.digest()),14,1000,"abc3"));
+		id = new Long(3);
+		DocIndex.indexTable.put(id, new DocIndex(id,1000,14,"abc3",ExampleEntity.class.getName()));
+
 	}
 
 }

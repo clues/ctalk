@@ -16,9 +16,9 @@ import com.helper.ByteHelper;
  */
 public class DocIndex {
 
-	public static int LENGTH_INDEX = 40;
+	public static int LENGTH_INDEX = 128;
 	
-	public static Hashtable<ByteArray,DocIndex> indexTable = new Hashtable<ByteArray,DocIndex>();
+	public static Hashtable<Long,DocIndex> indexTable = new Hashtable<Long,DocIndex>();
 	
 	//doc type,class type
 	private String clazz;
@@ -27,13 +27,12 @@ public class DocIndex {
 	private int length;
 	
 	//doc begin position,take 4 bytes
-	private int offset;
+	private long offset;
 	
 	//doc store in fileName,take 16 bytes
 	private String fileName;
 	
-	//md5 key,take 16 bytes
-	private ByteArray md5key;
+	private Long id;
 	
 	
 	public DocIndex(){
@@ -41,27 +40,30 @@ public class DocIndex {
 	}
 	
 	public DocIndex(byte[] bytes){
-		this.md5key = new ByteArray(Arrays.copyOfRange(bytes, 0, 16));
+		this.id = ByteHelper.getLong(bytes, 0);
+		this.offset = ByteHelper.getLong(bytes, 8);
 		this.length = ByteHelper.getInt(bytes, 16);
-		this.offset = ByteHelper.getInt(bytes, 20);
-		this.fileName = ByteHelper.getString(bytes, 24);
+		this.fileName = ByteHelper.getString(bytes, 20,18);
+		this.clazz = ByteHelper.getString(bytes,38);
 	}
 	
-	public DocIndex(ByteArray md5key,int length,int offset,String fileName){
-		this.md5key = md5key;
+	public DocIndex(Long id,long offset,int length,String fileName,String clazz){
+		this.id = id;
 		this.length = length;
 		this.offset = offset;
 		this.fileName = fileName;
+		this.clazz = clazz;
 		
 	}
 	
 	
 	public byte[] getBytes() throws IOException{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		out.write(this.getMd5key().getArray());
-		out.write(ByteHelper.getBytes(this.getLength()));
+		out.write(ByteHelper.getBytes(this.getId()));
 		out.write(ByteHelper.getBytes(this.getOffset()));
+		out.write(ByteHelper.getBytes(this.getLength()));
 		out.write(ByteHelper.getBytes(this.getFileName()));
+		out.write(ByteHelper.getBytes(this.getClazz()));
 		for (int i = out.size();i < LENGTH_INDEX;i++){
 			out.write(0);
 		}
@@ -71,9 +73,9 @@ public class DocIndex {
 	//flush hashtable to disk
 	public static int sync() throws IOException{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		for (Iterator<ByteArray> it = indexTable.keySet().iterator();it.hasNext();){
-			ByteArray md5key = it.next();
-			out.write(((DocIndex)indexTable.get(md5key)).getBytes());
+		for (Iterator<Long> it = indexTable.keySet().iterator();it.hasNext();){
+			Long id = it.next();
+			out.write(((DocIndex)indexTable.get(id)).getBytes());
 		}
 		
 		LetdbFile.docindexFile.delete();
@@ -86,12 +88,16 @@ public class DocIndex {
 		return out.toByteArray().length;
 	}
 	
-	public static DocIndex getDocIndex(ByteArray md5key){
-		return (DocIndex)indexTable.get(md5key);
+	public static DocIndex getDocIndex(Long id){
+		return (DocIndex)indexTable.get(id);
 	}
 	
-	public static void updateIndex(){
-		
+	public static void updateIndex(DocIndex index){
+		DocIndex tmp = getDocIndex(index.getId());
+		if (tmp != null){
+			indexTable.remove(tmp.getId());
+		}
+		indexTable.put(index.getId(), index);
 	}
 	
 	public String getClazz() {
@@ -110,14 +116,6 @@ public class DocIndex {
 		this.length = length;
 	}
 
-	public int getOffset() {
-		return offset;
-	}
-
-	public void setOffset(int offset) {
-		this.offset = offset;
-	}
-
 	public String getFileName() {
 		return fileName;
 	}
@@ -126,12 +124,21 @@ public class DocIndex {
 		this.fileName = fileName;
 	}
 
-	public ByteArray getMd5key() {
-		return md5key;
+
+	public Long getId() {
+		return id;
 	}
 
-	public void setMd5key(ByteArray md5key) {
-		this.md5key = md5key;
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public long getOffset() {
+		return offset;
+	}
+
+	public void setOffset(long offset) {
+		this.offset = offset;
 	}
 	
 }
