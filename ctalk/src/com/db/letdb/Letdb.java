@@ -44,14 +44,24 @@ public class Letdb {
 			File fd = StorageFileIndex.getFD(index.getFileName());
 			if (fd != null){
 				byte[] b = InWrite.read(fd, index.getOffset(), index.getLength());
-				
 				doc = Document.getInstance(new String(b),index.getClazz());
+				return doc;
 			}
 		}
-		return doc;
+		return null;
+		
 	}
 	
-	private void t(){
-		
+	public void delete(DocIndex index){
+		if (index != null){
+			delete(index.getId());
+		}
+	}
+	
+	public void delete(Long id){
+		DocIndex index = DocIndex.getDocIndex(id);
+		if (index != null){
+			DocIndex.deleteIndex(index.getId());
+		}
 	}
 }

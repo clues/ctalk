@@ -89,7 +89,17 @@ public class DocIndex {
 	}
 	
 	public static DocIndex getDocIndex(Long id){
-		return (DocIndex)indexTable.get(id);
+		return indexTable.get(id);
+	}
+	
+	public static int deleteIndex(Long id){
+		int code = 0;
+		DocIndex index = indexTable.get(id);
+		if (index != null){
+			indexTable.remove(id);
+			code = 1;
+		}
+		return code;
 	}
 	
 	public static void updateIndex(DocIndex index){

@@ -80,8 +80,11 @@ public class LetdbFile {
 	//load all index form disk in to hashtab
 	public static int loadDocIndex() throws IOException{
 		int count = 0;
-		if (docindexFile == null || !docindexFile.exists())
+		if (docindexFile == null || !docindexFile.exists()){
 			docindexFile = new File(DbRoot+DocIndexName);
+			docindexFile.createNewFile();
+		}
+			
 		BufferedInputStream in = new BufferedInputStream(new FileInputStream(docindexFile));
 		byte[] indexBytes = new byte[DocIndex.LENGTH_INDEX];
 		while (in.read(indexBytes) != -1){

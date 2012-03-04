@@ -23,11 +23,8 @@ public class Document {
 	
 	public static Document getInstance(String jstr,String clazz) throws ClassNotFoundException{
 		Document doc = null;
-		if (clazz.equals(ExampleEntity.class.getName())){
-			doc = JSON.parseObject(jstr,ExampleEntity.class);
-		}else if(clazz.equals(Document.class.getName())){
-			doc = JSON.parseObject(jstr,Document.class);
-		}
+		Class c = Class.forName(clazz);
+		doc = JSON.parseObject(jstr,c);
 		return doc;
 	}
 

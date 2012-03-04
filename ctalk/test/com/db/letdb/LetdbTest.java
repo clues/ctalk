@@ -32,6 +32,27 @@ public class LetdbTest {
 		assertEquals(ExampleEntity.class.getName(),DocIndex.getDocIndex(doc.getId()).getClazz());
 	}
 	
+	@Test
+	public void testSaveOrUpdate_update() throws IOException, ClassNotFoundException{	
+		ExampleEntity doc = new ExampleEntity();
+		doc.setName("hahha");
+		doc.setCode(1);
+		Letdb letdb = new Letdb();
+		letdb.saveOrUpdate(doc);
+		
+		assertEquals(ExampleEntity.class.getName(),DocIndex.getDocIndex(doc.getId()).getClazz());
+		assertEquals(1,((ExampleEntity)letdb.get(doc.getId())).getCode());
+		
+		doc.setCode(2);
+		doc.setName("hahha2");
+		letdb.saveOrUpdate(doc);
+		
+		assertEquals(2,((ExampleEntity)letdb.get(doc.getId())).getCode());
+		assertEquals("hahha2",((ExampleEntity)letdb.get(doc.getId())).getName());
+		
+	}
+	
+	
 	
 	@Test
 	public void testGet() throws IOException, ClassNotFoundException{
